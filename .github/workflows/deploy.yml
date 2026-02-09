@@ -23,15 +23,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-            - name: Setup Node
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Clean lockfile (Windows -> Linux)
+      - name: Clean (Windows -> Linux)
         run: |
-          rm -f package-lock.json
           rm -rf node_modules
+          rm -f package-lock.json
 
       - name: Install
         run: npm install --include=optional
@@ -39,18 +39,20 @@ jobs:
       - name: Build
         run: npm run build
 
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Deploy
         id: deployment
