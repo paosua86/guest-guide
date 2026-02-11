@@ -28,12 +28,12 @@ export default function Home({ lang, setLang }) {
       subEs: "Cocina, agua, WiFi, TV, ducha",
       subEn: "Kitchen, water, WiFi, TV, shower",
     },
-    {
+   {
       to: "/explore",
-      es: "Conoce Cumbayá",
-      en: "Explore Cumbayá",
-      subEs: "Dónde comer, compras, moverse",
-      subEn: "Food, shopping, getting around",
+      es: "Conoce Cumbayá & Quito",
+      en: "Explore Cumbayá & Quito",
+      subEs: "Dónde comer, malls, planes",
+      subEn: "Food, malls, things to do",
     },
 
     {

@@ -7,12 +7,10 @@ import Home from "./pages/Home.jsx";
 import Arrival from "./pages/Arrival.jsx";
 import Inventory from "./pages/Inventory.jsx";
 import Cumbaya from "./pages/Cumbaya.jsx";
-
-// Si ya existen, descomenta e importa (y agrega rutas abajo):
 import HomeSystems from "./pages/HomeSystems.jsx";
-import Laundry from "./pages/Laundry.jsx";
 import Amenities from "./pages/Amenities.jsx";
 import Rules from "./pages/Rules.jsx";
+import Explore from "./pages/Explore.jsx";
 
 function AppRouter() {
   const [lang, setLang] = useState("es");
@@ -39,7 +37,7 @@ function AppRouter() {
         <Route path="/home-systems" element={<HomeSystems lang={lang} />} />
         <Route path="/amenities" element={<Amenities lang={lang} />} />
         <Route path="/rules" element={<Rules lang={lang} />} />
-
+         <Route path="/explore" element={<Explore lang={lang} />} />
 
         {/* ✅ fallback: si ponen una ruta rara, vuelve al Home */}
         <Route path="*" element={<Home lang={lang} setLang={setLang} />} />
