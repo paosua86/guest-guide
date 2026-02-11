@@ -35,13 +35,6 @@ export default function Home({ lang, setLang }) {
       subEs: "Dónde comer, compras, moverse",
       subEn: "Food, shopping, getting around",
     },
-    {
-      to: "/laundry",
-      es: "Lavandería",
-      en: "Laundry",
-      subEs: "Lavadora, secadora, tips",
-      subEn: "Washer, dryer, tips",
-    },
 
     {
       to: "/rules",

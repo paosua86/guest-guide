@@ -37,7 +37,6 @@ function AppRouter() {
 
 
         <Route path="/home-systems" element={<HomeSystems lang={lang} />} />
-        <Route path="/laundry" element={<Laundry lang={lang} />} />
         <Route path="/amenities" element={<Amenities lang={lang} />} />
         <Route path="/rules" element={<Rules lang={lang} />} />
 
