@@ -5,7 +5,8 @@ import Home from "./pages/Home";
 import Arrival from "./pages/Arrival";
 import Inventory from "./pages/Inventory";
 
-
+// ✅ NUEVA PÁGINA
+import Cumbaya from "./pages/Cumbaya";
 
 // Si ya los tienes creados, descomenta e importa.
 // import HomeSystems from "./pages/HomeSystems";
