@@ -1,58 +1,64 @@
 // src/pages/Explore.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { track } from "../lib/analytics";
+import Shell from "../components/Shell";
 
-function PlaceCard({ title, subtitle, note, url, lang, whatsapp, waText }) {
+function PlaceCard({ title, subtitle, note, url, lang, whatsapp, waText, name, section }) {
   const t = (es, en) => (lang === "es" ? es : en);
   const hasUrl = url && url !== "XXX";
   const hasWa = whatsapp && waText;
+  // La mayoría de títulos son nombres propios; `name` solo hace falta donde el
+  // título cambia con el idioma, para que el reporte no se parta en dos.
+  const label = name || title;
+
+  const contenido = (
+    <>
+      <div className="gg-placeText">
+        <div className="gg-placeName">{title}</div>
+        {subtitle ? <div className="gg-placeSub">{subtitle}</div> : null}
+        {note ? <div className="gg-placeNote">{note}</div> : null}
+      </div>
+      <div className="gg-placeGo" aria-hidden="true">
+        {hasUrl ? "↗" : "·"}
+      </div>
+    </>
+  );
 
   return (
-    <div className="gg-section" style={{ marginTop: 12 }}>
-      <div className="gg-sectionTitle" style={{ marginBottom: 6 }}>
-        {title}
-      </div>
-
-      {subtitle ? (
-        <div className="gg-p" style={{ margin: "0 0 10px", opacity: 0.9 }}>
-          {subtitle}
-        </div>
-      ) : null}
-
-      {note ? (
-        <div className="gg-p" style={{ margin: "0 0 10px" }}>
-          {note}
-        </div>
-      ) : null}
-
-      <div style={{ display: "grid", gap: 10 }}>
+    <div className={`gg-place ${hasUrl ? "" : "gg-place--off"}`}>
+      {hasUrl ? (
         <a
-          className={`gg-btn ${hasUrl ? "" : "gg-btnSecondary"}`}
-          style={{ margin: 0, pointerEvents: hasUrl ? "auto" : "none", opacity: hasUrl ? 1 : 0.6 }}
-          href={hasUrl ? url : undefined}
+          className="gg-placeMain"
+          href={url}
           target="_blank"
           rel="noreferrer"
+          aria-label={t(`Abrir ${label} en Google Maps`, `Open ${label} in Google Maps`)}
+          onClick={() => track("open_map", { place: label, section })}
         >
-          {hasUrl ? t("Abrir en Google Maps", "Open in Google Maps") : t("Link GPS pendiente", "GPS link pending")}
+          {contenido}
         </a>
+      ) : (
+        <div className="gg-placeMain" title={t("Link GPS pendiente", "GPS link pending")}>
+          {contenido}
+        </div>
+      )}
 
-        {hasWa ? (
-          <a
-            className="gg-btn gg-btnSecondary"
-            style={{ margin: 0 }}
-            href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(waText)}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {t("Pedir por WhatsApp", "Order on WhatsApp")}
-          </a>
-        ) : null}
-      </div>
+      {hasWa ? (
+        <a
+          className="gg-placeWa"
+          href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(waText)}`}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => track("order_whatsapp", { place: label, section })}
+        >
+          {t("Pedir por WhatsApp", "Order on WhatsApp")}
+        </a>
+      ) : null}
     </div>
   );
 }
 
-export default function Explore({ lang }) {
+export default function Explore({ lang, setLang }) {
   const t = (es, en) => (lang === "es" ? es : en);
 
   const fastPractical = [
@@ -83,6 +89,7 @@ export default function Explore({ lang }) {
       url: "https://maps.app.goo.gl/uPeG3wzVot83LEWT6",
     },
     {
+      name: "Médico",
       title: t("Médico (≈ 4 min caminando)", "Doctor (≈ 4 min walk)"),
       subtitle: t("Si necesitas atención rápida cerca.", "If you need quick care close to the apartment."),
       note: "",
@@ -212,6 +219,7 @@ export default function Explore({ lang }) {
 
   const quitoHistoric = [
     {
+      name: "Centro Histórico de Quito",
       title: t("Centro Histórico de Quito (≈ 30 min en carro)", "Quito Historic Center (≈ 30 min by car)"),
       subtitle: t(
         "Uno de los centros históricos más bonitos de Latinoamérica. Ideal para ir en la mañana (especialmente sábado o domingo).",
@@ -227,6 +235,7 @@ export default function Explore({ lang }) {
 
   const quitoNewer = [
     {
+      name: "Quito moderno",
       title: t("Quito moderno / más urbano (≈ 23 min en carro)", "Modern / urban Quito (≈ 23 min by car)"),
       subtitle: t("Zona con más desarrollo urbano, movimiento y opciones.", "An area with more urban development, energy, and options."),
       note: "",
@@ -235,15 +244,7 @@ export default function Explore({ lang }) {
   ];
 
   return (
-    <div className="gg-wrap">
-      <div className="gg-card">
-        <div className="gg-inner">
-          <div className="gg-pageTop">
-            <Link className="gg-back" to="/">
-              {t("← Volver", "← Back")}
-            </Link>
-            <div className="gg-badge">{t("CONOCE CUMBAYÁ", "EXPLORE CUMBAYÁ")}</div>
-          </div>
+    <Shell lang={lang} setLang={setLang} badgeEs="CONOCE CUMBAYÁ" badgeEn="EXPLORE CUMBAYÁ">
 
           <h1 className="gg-h1">{t("Conoce Cumbayá & Quito", "Explore Cumbayá & Quito")}</h1>
           <p className="gg-p">
@@ -255,57 +256,57 @@ export default function Explore({ lang }) {
 
           <div className="gg-section gg-mt">
             <div className="gg-sectionTitle">{t("FAST & PRÁCTICO (cerca)", "FAST & PRACTICAL (nearby)")}</div>
-            <div className="gg-stack">
+            <div className="gg-placeStack">
               {fastPractical.map((p) => (
-                <PlaceCard key={p.title} {...p} lang={lang} />
+                <PlaceCard key={p.title} {...p} lang={lang} section="Fast & práctico" />
               ))}
             </div>
           </div>
 
           <div className="gg-section gg-mt">
             <div className="gg-sectionTitle">{t("PARA DESAYUNAR (cerca)", "BREAKFAST (nearby)")}</div>
-            <div className="gg-stack">
+            <div className="gg-placeStack">
               {breakfastNearby.map((p) => (
-                <PlaceCard key={p.title} {...p} lang={lang} />
+                <PlaceCard key={p.title} {...p} lang={lang} section="Desayuno" />
               ))}
             </div>
           </div>
 
           <div className="gg-section gg-mt">
             <div className="gg-sectionTitle">{t("RESTAURANTE CAMINANDO (≈ 13–14 min)", "WALKABLE RESTAURANTS (≈ 13–14 min)")}</div>
-            <div className="gg-stack">
+            <div className="gg-placeStack">
               {restaurantsWalk.map((p) => (
-                <PlaceCard key={p.title} {...p} lang={lang} />
+                <PlaceCard key={p.title} {...p} lang={lang} section="Restaurantes caminando" />
               ))}
             </div>
           </div>
 
           <div className="gg-section gg-mt">
             <div className="gg-sectionTitle">{t("PLAZAS Y MALLS CERCA", "NEARBY PLAZAS & MALLS")}</div>
-            <div className="gg-stack">
+            <div className="gg-placeStack">
               {plazasWalkable.map((p) => (
-                <PlaceCard key={p.title} {...p} lang={lang} />
+                <PlaceCard key={p.title} {...p} lang={lang} section="Plazas y malls" />
               ))}
             </div>
           </div>
 
           <div className="gg-section gg-mt">
             <div className="gg-sectionTitle">{t("Más opciones (en carro)", "More options (by car)")}</div>
-            <div className="gg-stack">
+            <div className="gg-placeStack">
               {byCar.map((p) => (
-                <PlaceCard key={p.title} {...p} lang={lang} />
+                <PlaceCard key={p.title} {...p} lang={lang} section="En carro" />
               ))}
             </div>
           </div>
 
           <div className="gg-section gg-mt">
             <div className="gg-sectionTitle">{t("QUITO (PLAN DE DÍA)", "QUITO (DAY TRIP)")}</div>
-            <div className="gg-stack">
+            <div className="gg-placeStack">
               {quitoHistoric.map((p) => (
-                <PlaceCard key={p.title} {...p} lang={lang} />
+                <PlaceCard key={p.title} {...p} lang={lang} section="Quito (plan de día)" />
               ))}
               {quitoNewer.map((p) => (
-                <PlaceCard key={p.title} {...p} lang={lang} />
+                <PlaceCard key={p.title} {...p} lang={lang} section="Quito (plan de día)" />
               ))}
             </div>
           </div>
@@ -313,8 +314,6 @@ export default function Explore({ lang }) {
           <div className="gg-foot" style={{ marginTop: 14 }}>
             {t("Si necesitas recomendaciones extra o tienes dudas, aquí estamos.", "If you need more recommendations or have questions, we’re here.")}
           </div>
-        </div>
-      </div>
-    </div>
+    </Shell>
   );
 }

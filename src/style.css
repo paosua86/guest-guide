@@ -31,7 +31,7 @@ body{
   background:
     linear-gradient(180deg, rgba(10,8,7,.70), rgba(10,8,7,.70)),
     radial-gradient(900px 600px at 50% 10%, var(--accent), transparent 60%),
-    url("./assets/quito.png");
+    url("./assets/quito.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -40,38 +40,52 @@ body{
 
 a{ color: inherit; text-decoration:none; }
 
-/* --- Full-bleed layout --- */
-.gg-wrap{
-    min-height: 100vh;
+/* ============================================================
+   SHELL
+   Móvil: una pantalla a la vez (el uso real, con el QR del depa).
+   Escritorio: riel de navegación fijo + panel de contenido.
+   ============================================================ */
+
+.gg-shell{
+  min-height: 100vh;
   width: 100%;
-  padding: 0;
-  display:flex;
-  align-items: stretch;
-  justify-content: stretch;
+  padding: 18px 12px;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
 }
 
-/* Outer container (keeps it elegant on big screens) */
-.gg-card{
+.gg-main{ width: 100%; }
+
+.gg-panel{
   width: 100%;
   max-width: 520px;
   margin: 0 auto;
   border-radius: var(--radius);
-  padding: 14px;
-  background: rgba(0,0,0,.18);
-  border: 1px solid rgba(255,255,255,.06);
+  padding: 22px 18px 18px;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.12);
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
 }
 
-/* Inner card (the “phone-like” panel) */
-.gg-inner{
-  border-radius: calc(var(--radius) - 8px);
-  padding: 22px 18px 18px;
-  background: var(--card);
-  border: 1px solid rgba(255,255,255,.12);
+/* El riel solo existe en escritorio; en móvil se navega desde el Home. */
+.gg-rail{ display: none; }
+
+/* Barra superior de móvil (contexto + salida) */
+.gg-mobileBar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom: 14px;
 }
 
-/* Top row */
+.gg-mobileBarRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* Top row (Home) */
 .gg-top{
   display:flex;
   align-items:flex-start;
@@ -87,15 +101,34 @@ a{ color: inherit; text-decoration:none; }
 }
 
 .gg-lang{
+  /* 44x44 es el mínimo cómodo para el pulgar; con solo "EN" dentro, el
+     tamaño lo tiene que dar la caja, no el texto. */
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+
   border: 1px solid rgba(245,236,220,.22);
   background: rgba(255,255,255,.08);
   color: rgba(245,236,220,.92);
   padding: 6px 10px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-weight: 800;
-  font-size: 12px;
+  font-size: 12.5px;
   cursor:pointer;
 }
+
+.gg-lang:hover{ background: rgba(255,255,255,.14); }
+
+.gg-lang:focus-visible{
+  outline: 3px solid rgba(245,236,220,.9);
+  outline-offset: 2px;
+}
+
+/* En el riel de escritorio hay puntero fino: puede ser más discreto. */
+.gg-lang--rail{ min-width: 38px; min-height: 34px; padding: 4px 8px; }
+
+.gg-back{ min-height: 44px; }
 
 /* Title + subtitle */
 .gg-title{
@@ -157,15 +190,6 @@ a{ color: inherit; text-decoration:none; }
   text-align:center;
 }
 
-/* --- Page header (subpages) --- */
-.gg-pageTop{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom: 14px;
-}
-
 .gg-back{
   display:inline-flex;
   align-items:center;
@@ -215,6 +239,57 @@ a{ color: inherit; text-decoration:none; }
   height: 100%;
 }
 
+/* Miniatura "tocar para reproducir": ocupa el mismo hueco que el iframe, así
+   que al cargar el video no salta el layout. */
+.gg-videoThumb{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: rgba(0,0,0,.25);
+  cursor: pointer;
+  display: block;
+}
+
+.gg-videoThumb img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gg-playIcon{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  padding-left: 3px;          /* centra ópticamente el triángulo */
+  border-radius: 999px;
+  background: var(--pill);
+  color: var(--pillText);
+  box-shadow: 0 10px 26px rgba(0,0,0,.45);
+  transition: transform .12s ease, filter .2s ease;
+}
+
+.gg-videoThumb:hover .gg-playIcon{ transform: translate(-50%,-50%) scale(1.06); }
+.gg-videoThumb:active .gg-playIcon{ transform: translate(-50%,-50%) scale(.97); }
+
+.gg-videoThumb:focus-visible{
+  outline: 3px solid rgba(245,236,220,.85);
+  outline-offset: -3px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .gg-playIcon{ transition: none; }
+}
+
 .gg-videoMeta{
   display:flex;
   align-items:center;
@@ -233,6 +308,205 @@ a{ color: inherit; text-decoration:none; }
   margin-top: 4px;
   font-size: 12.5px;
   color: rgba(255,255,255,.72);
+}
+
+/* --- Atajos del Home ("Lo primero") --- */
+.gg-quick{
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 18px;
+}
+
+/* Encabezado de grupo. Deliberadamente NO es un eyebrow en versalitas
+   espaciadas: ya hay uno (la marca) y repetirlo en cada bloque convierte
+   un acento en ruido. La jerarquía la dan tamaño y peso. */
+.gg-h2{
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -.005em;
+  color: rgba(255,255,255,.82);
+}
+
+.gg-homeList .gg-h2{ margin-top: 20px; }
+
+.gg-quickBtn{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--pill);
+  color: var(--pillText);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 12px 26px rgba(0,0,0,.30);
+  transition: transform .06s ease, filter .2s ease;
+}
+
+.gg-quickBtn:active{ transform: scale(.99); }
+.gg-quickBtn:hover{ filter: brightness(1.02); }
+
+.gg-quickBtn:focus-visible{
+  outline: 3px solid rgba(245,236,220,.9);
+  outline-offset: 2px;
+}
+
+.gg-quickText{ flex: 1; min-width: 0; }
+
+.gg-quickTitle{
+  display: block;
+  font-weight: 820;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.gg-quickSub{
+  display: block;
+  margin-top: 3px;
+  font-weight: 700;
+  font-size: 12px;
+  opacity: .72;
+}
+
+.gg-quickGo{
+  flex-shrink: 0;
+  font-size: 17px;
+  font-weight: 800;
+  opacity: .6;
+}
+
+/* --- Lugares (Conoce Cumbayá) --- */
+/* Antes cada lugar era una tarjeta con botón de ancho completo: 24 lugares
+   hacían un scroll interminable. Ahora cada uno es una fila tocable. */
+.gg-placeStack{ display:grid; gap: 8px; }
+
+.gg-place{
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  overflow: hidden;
+}
+
+.gg-placeMain{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  color: rgba(255,255,255,.94);
+}
+
+.gg-placeMain:hover{ background: rgba(255,255,255,.05); }
+.gg-placeMain:active{ background: rgba(255,255,255,.08); }
+
+.gg-placeMain:focus-visible{
+  outline: 3px solid rgba(245,236,220,.85);
+  outline-offset: -3px;
+}
+
+.gg-placeText{ flex: 1; min-width: 0; }
+
+.gg-placeName{
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.gg-placeSub{
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: rgba(255,255,255,.68);
+}
+
+.gg-placeNote{
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(245,236,220,.72);
+}
+
+.gg-placeGo{
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(245,236,220,.14);
+  color: rgba(245,236,220,.92);
+  font-size: 15px;
+}
+
+.gg-place--off .gg-placeMain{ opacity: .55; }
+
+.gg-placeWa{
+  display: block;
+  padding: 11px 14px;
+  border-top: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.14);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: rgba(245,236,220,.92);
+  text-align: center;
+}
+
+.gg-placeWa:hover{ background: rgba(0,0,0,.22); }
+
+/* --- Acordeón (Normas) --- */
+.gg-acc{
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+  background: rgba(255,255,255,.06);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.gg-accSummary{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 15px 16px;
+  cursor: pointer;
+  list-style: none;             /* oculta el triangulito por defecto */
+
+  font-weight: 800;
+  font-size: 14px;
+  color: rgba(255,255,255,.94);
+}
+
+/* Safari usa un pseudo-elemento propio para el marcador */
+.gg-accSummary::-webkit-details-marker{ display: none; }
+
+.gg-accSummary:hover{ background: rgba(255,255,255,.04); }
+
+.gg-accSummary:focus-visible{
+  outline: 3px solid rgba(245,236,220,.85);
+  outline-offset: -3px;
+}
+
+.gg-accChevron{
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(245,236,220,.75);
+  transition: transform .18s ease;
+}
+
+.gg-acc[open] .gg-accChevron{ transform: rotate(180deg); }
+
+.gg-accBody{
+  padding: 0 16px 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 14px;
+}
+
+.gg-accBody .gg-p{ margin-bottom: 0; }
+.gg-accBody .gg-list{ margin-bottom: 0; }
+
+@media (prefers-reduced-motion: reduce){
+  .gg-accChevron{ transition: none; }
 }
 
 /* --- Inventory grid (images contained) --- */
@@ -282,20 +556,222 @@ a{ color: inherit; text-decoration:none; }
 
 /* Mobile polish */
 @media (max-width: 520px){
-  .gg-wrap{ padding: 18px 12px; }
-  .gg-card{ padding: 12px; }
-  .gg-inner{ padding: 20px 16px 16px; }
+  .gg-shell{ padding: 14px 12px; }
+  .gg-panel{ padding: 20px 16px 16px; }
   .gg-title{ font-size: 30px; }
 }
 
+/* ============================================================
+   ESCRITORIO
+   No es la versión móvil estirada: cambia la estructura.
+   El riel sustituye al viaje de ida y vuelta por el Home, y el
+   contenido usa el ancho para mostrar más de una vez.
+   ============================================================ */
+
+@media (min-width: 1024px){
+  .gg-shell{
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: 20px;
+
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 20px;
+    height: 100vh;
+  }
+
+  /* --- Riel --- */
+  .gg-rail{
+    display: block;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: var(--shadow);
+  }
+
+  /* La foto por fin se ve: es el panel, no un fondo tapado. */
+  .gg-rail::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image: var(--railBg);
+    background-size: cover;
+    background-position: 58% center;
+    transform: scale(1.06);
+    animation: ggKenBurns 26s ease-in-out infinite alternate;
+    z-index: 0;
+  }
+
+  .gg-rail::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index: 1;
+    background:
+      radial-gradient(700px 420px at 30% 0%, rgba(176,138,99,.28), transparent 58%),
+      linear-gradient(180deg, rgba(14,11,10,.72), rgba(12,9,8,.93));
+  }
+
+  .gg-railInner{
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 26px 20px 20px;
+    overflow-y: auto;
+  }
+
+  .gg-railBrand{ display: block; margin-bottom: 26px; }
+
+  .gg-railKicker{
+    display: block;
+    font-size: 10.5px;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: rgba(245,236,220,.72);
+  }
+
+  .gg-railName{
+    display: block;
+    margin-top: 8px;
+    font-size: 27px;
+    font-weight: 820;
+    letter-spacing: -.02em;
+    line-height: 1.06;
+  }
+
+  .gg-railNav{ display: grid; gap: 4px; }
+
+  .gg-railLink{
+    display: block;
+    padding: 11px 13px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    transition: background .15s ease, border-color .15s ease;
+  }
+
+  .gg-railLink:hover{ background: rgba(255,255,255,.09); }
+
+  .gg-railLink:focus-visible{
+    outline: 3px solid rgba(245,236,220,.9);
+    outline-offset: 1px;
+  }
+
+  /* Marca dónde estás: en escritorio sustituye al badge de la cabecera. */
+  .gg-railLink.is-active{
+    background: var(--pill);
+    border-color: rgba(255,255,255,.2);
+  }
+
+  .gg-railLinkName{
+    display: block;
+    font-weight: 800;
+    font-size: 14px;
+    color: rgba(255,255,255,.95);
+  }
+
+  .gg-railLinkSub{
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    line-height: 1.3;
+    color: rgba(255,255,255,.66);
+  }
+
+  .gg-railLink.is-active .gg-railLinkName{ color: var(--pillText); }
+  .gg-railLink.is-active .gg-railLinkSub{ color: rgba(24,18,16,.72); }
+
+  .gg-railFoot{ margin-top: auto; padding-top: 22px; }
+
+  .gg-railWa{
+    display: block;
+    padding: 13px 14px;
+    border-radius: 14px;
+    background: var(--pill);
+    color: var(--pillText);
+    text-align: center;
+    font-weight: 820;
+    font-size: 13.5px;
+    box-shadow: 0 12px 26px rgba(0,0,0,.32);
+    transition: filter .2s ease;
+  }
+
+  .gg-railWa:hover{ filter: brightness(1.04); }
+
+  .gg-railMeta{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+    font-size: 11.5px;
+    color: rgba(255,255,255,.72);
+  }
+
+  /* --- Panel de contenido --- */
+  .gg-main{ min-width: 0; height: 100%; }
+
+  .gg-panel{
+    max-width: none;
+    height: 100%;
+    overflow-y: auto;
+    padding: 34px 38px 38px;
+    scrollbar-gutter: stable;
+  }
+
+  /* El riel ya dice dónde estás y cómo salir. */
+  .gg-mobileBar{ display: none; }
+  .gg-panel--home .gg-top{ display: none; }
+
+  .gg-h1{ font-size: 30px; margin-bottom: 10px; }
+  .gg-p{ font-size: 15px; max-width: 68ch; }
+
+  /* Aprovechar el ancho: más contenido visible de una vez. */
+  .gg-stack{ grid-template-columns: 1fr 1fr; gap: 18px; }
+  .gg-placeStack{ grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gg-grid{ grid-template-columns: repeat(3, 1fr); }
+
+  .gg-acc{ margin-bottom: 8px; }
+  .gg-accSummary{ font-size: 14.5px; }
+
+  /* Home: los dos atajos lado a lado, el resto vive en el riel. */
+  .gg-quick{ grid-template-columns: 1fr 1fr; gap: 12px; }
+  .gg-homeList{ display: none; }
+  .gg-panel--home{ display: flex; flex-direction: column; justify-content: center; }
+  .gg-title{ font-size: 44px; }
+  .gg-sub{ font-size: 16px; max-width: 52ch; }
+}
+
+@media (min-width: 1440px){
+  .gg-grid{ grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Tablet: sin riel todavía, pero el contenido ya respira. */
+@media (min-width: 768px) and (max-width: 1023px){
+  .gg-panel{ max-width: 700px; padding: 28px 26px 26px; }
+  .gg-grid{ grid-template-columns: 1fr 1fr; }
+  .gg-placeStack{ grid-template-columns: 1fr 1fr; }
+}
+
+/* En pantallas táctiles no se puede confiar en el hover. */
+@media (hover: none){
+  .gg-btn:hover,
+  .gg-quickBtn:hover,
+  .gg-railWa:hover{ filter: none; }
+  .gg-placeMain:hover,
+  .gg-accSummary:hover{ background: transparent; }
+}
+
 /* ===== BACKGROUND MOTION (FINAL OVERRIDE) ===== */
-.gg-innerBg{
+.gg-panel--home{
   position: relative;
   overflow: hidden;
 }
 
 /* Imagen animada */
-.gg-innerBg::after{
+.gg-panel--home::after{
   content:"";
   position:absolute;
   inset:0;
@@ -313,7 +789,7 @@ a{ color: inherit; text-decoration:none; }
 }
 
 /* Overlay para legibilidad */
-.gg-innerBg::before{
+.gg-panel--home::before{
   content:"";
   position:absolute;
   inset:0;
@@ -326,7 +802,7 @@ a{ color: inherit; text-decoration:none; }
 }
 
 /* Tu contenido encima */
-.gg-innerBg > *{
+.gg-panel--home > *{
   position: relative;
   z-index: 2;
 }
@@ -337,7 +813,7 @@ a{ color: inherit; text-decoration:none; }
 }
 
 @media (prefers-reduced-motion: reduce){
-  .gg-innerBg::after{ animation: none; transform: scale(1.06); }
+  .gg-panel--home::after{ animation: none; transform: scale(1.06); }
 }
 /* Mapa: más alto y sin recortar tanto */
 .gg-mediaMap{

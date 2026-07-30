@@ -1,5 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { track } from "../lib/analytics";
+import VideoCard from "../components/VideoCard";
+import Shell from "../components/Shell";
 
 function PhotoTile({ url, label }) {
   return (
@@ -12,32 +14,7 @@ function PhotoTile({ url, label }) {
   );
 }
 
-function VideoCard({ title, note, videoId }) {
-  return (
-    <div className="gg-videoCard">
-      <div className="gg-video">
-        <iframe
-          src={`https://www.youtube.com/embed/${videoId}`}
-          title={title}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        />
-      </div>
-
-
-      <div className="gg-videoMeta">
-        <div>
-          <div className="gg-videoTitle">{title}</div>
-          {note ? <div className="gg-videoNote">{note}</div> : null}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function Amenities({ lang }) {
+export default function Amenities({ lang, setLang }) {
   const t = (es, en) => (lang === "es" ? es : en);
 
   // ✅ Cloudinary base (estable, no requiere v####, no requiere .jpg)
@@ -74,15 +51,7 @@ export default function Amenities({ lang }) {
   const howToReachVideoId = "nxPv3Su9Ba4";
 
   return (
-    <div className="gg-wrap">
-      <div className="gg-card">
-        <div className="gg-inner">
-          <div className="gg-pageTop">
-            <Link className="gg-back" to="/">
-              {t("← Volver", "← Back")}
-            </Link>
-            <div className="gg-badge">{t("AMENIDADES", "AMENITIES")}</div>
-          </div>
+    <Shell lang={lang} setLang={setLang} badgeEs="AMENIDADES" badgeEn="AMENITIES">
 
           <h1 className="gg-h1">{t("Amenidades", "Amenities")}</h1>
           <p className="gg-p">
@@ -97,6 +66,8 @@ export default function Amenities({ lang }) {
               title={t("Cómo llegar a las amenidades", "How to reach the amenities")}
               note={t("Video rápido con la ruta y acceso.", "Quick route + access video.")}
               videoId={howToReachVideoId}
+              name="Cómo llegar a las amenidades"
+              lang={lang}
             />
 
             {/* MAPA (debajo del video) */}
@@ -160,7 +131,14 @@ export default function Amenities({ lang }) {
 
             <div className="gg-spacer" />
 
-            <a className="gg-btn" style={{ margin: 0 }} href={waLink} target="_blank" rel="noreferrer">
+            <a
+              className="gg-btn"
+              style={{ margin: 0 }}
+              href={waLink}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => track("contact_whatsapp", { source: "Amenidades", purpose: "reservar_amenidad" })}
+            >
               {t("Reservar por WhatsApp", "Book via WhatsApp")}
             </a>
           </div>
@@ -230,10 +208,6 @@ export default function Amenities({ lang }) {
           </div>
 
           <div className="gg-spacer-lg" />
-
-
-        </div>
-      </div>
-    </div>
+    </Shell>
   );
 }

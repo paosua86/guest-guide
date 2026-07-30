@@ -1,70 +1,58 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { track } from "../lib/analytics";
+import VideoCard from "../components/VideoCard";
+import Shell from "../components/Shell";
 
-function VideoCard({ title, note, videoId }) {
-  return (
-    <div className="gg-videoCard">
-      <div className="gg-video">
-        <iframe
-          src={`https://www.youtube.com/embed/${videoId}`}
-          title={title}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        />
-      </div>
-
-      <div className="gg-videoMeta">
-        <div>
-          <div className="gg-videoTitle">{title}</div>
-          {note ? <div className="gg-videoNote">{note}</div> : null}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function HomeSystems({ lang }) {
+export default function HomeSystems({ lang, setLang }) {
   const t = (es, en) => (lang === "es" ? es : en);
 
+  // `name` es el nombre fijo en español que se manda a analytics, para que el
+  // reporte no se parta en dos según el idioma que eligió el huésped.
   const videos = [
     {
+      name: "Agua caliente (calentador)",
       title: t("Agua caliente (calentador)", "Hot water (water heater)"),
       note: t("Qué hacer si no sale caliente.", "What to do if hot water stops."),
       videoId: "9tOfp1PfBJ8",
     },
     {
+      name: "Sofá cama",
       title: t("Sofá cama (uso)", "Sofa bed (how to use)"),
       note: t("Abrir/cerrar sin forzar el mecanismo.", "Open/close without forcing it."),
       videoId: "-_Q0cmhDzOA",
     },
     {
+      name: "Cafetera",
       title: t("Cafetera (uso)", "Coffee maker (how to use)"),
       note: t("Paso a paso y tips.", "Step-by-step and tips."),
       videoId: "AK5W0SW8eIM",
     },
     {
+      name: "Lavadora y secadora",
       title: t("Lavadora y secadora (uso)", "Washer & dryer (how to use)"),
       note: t("Programas + tips para secado.", "Programs + drying tips."),
       videoId: "d2ynmmVEYcQ",
     },
     {
+      name: "Cocina y extractor",
       title: t("Cocina y extractor (uso)", "Cooktop + exhaust hood (how to use)"),
       note: t("Prende el extractor siempre que cocines.", "Always turn on the hood when cooking."),
       videoId: "RFns3bXC75M",
     },
     {
+      name: "Agua bebible / filtrada",
       title: t("Agua bebible / filtrada", "Drinkable / filtered water"),
       note: t("Dónde tomar agua segura en el depa.", "Where to get safe drinking water."),
       videoId: "idyt0ha5TrQ",
     },
     {
+      name: "Licuadora",
       title: t("Licuadora (uso)", "Blender (how to use)"),
       note: t("Uso correcto", "Proper use"),
       videoId: "NaCgS053lmo",
     },
     {
+      name: "Horno",
       title: t("Horno (uso)", "Oven (how to use)"),
       note: t("Encendido y seguridad.", "Start-up and safety."),
       videoId: "Ja13PkT9ODI",
@@ -76,15 +64,7 @@ export default function HomeSystems({ lang }) {
   )}`;
 
   return (
-    <div className="gg-wrap">
-      <div className="gg-card">
-        <div className="gg-inner">
-          <div className="gg-pageTop">
-            <Link className="gg-back" to="/">
-              {t("← Volver", "← Back")}
-            </Link>
-            <div className="gg-badge">{t("CASA & EQUIPOS", "HOME & APPLIANCES")}</div>
-          </div>
+    <Shell lang={lang} setLang={setLang} badgeEs="CASA & EQUIPOS" badgeEn="HOME & APPLIANCES">
 
           <h1 className="gg-h1">{t("Casa & Equipos", "Home & Appliances")}</h1>
           <p className="gg-p">
@@ -95,18 +75,37 @@ export default function HomeSystems({ lang }) {
           </p>
 
           {/* WIFI */}
+          {/* La contraseña NO va aquí: esta guía es una web pública y todo lo
+              que se muestra en pantalla viaja en un archivo que cualquiera
+              puede abrir sin ser huésped. Se entrega por el chat de Airbnb. */}
           <div className="gg-section">
             <div className="gg-sectionTitle">{t("WiFi", "WiFi")}</div>
             <div className="gg-p" style={{ margin: 0 }}>
               <strong>{t("Red:", "Network:")}</strong> Dep-2048 <br />
-              <strong>{t("Contraseña:", "Password:")}</strong> dep2048AQarela
+              {t(
+                "La contraseña te llega por el chat de Airbnb. Si no la encuentras, escríbeme y te la paso al instante.",
+                "The password is sent to you via Airbnb chat. If you can’t find it, message me and I’ll send it right away."
+              )}
             </div>
+
+            <a
+              className="gg-btn gg-btnSecondary"
+              href={`https://wa.me/593998536569?text=${encodeURIComponent(
+                "Hola, estoy en el departamento 2048 en Aquarela. ¿Me pasas la contraseña del WiFi?"
+              )}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{ marginTop: 12, marginBottom: 0 }}
+              onClick={() => track("contact_whatsapp", { source: "Casa & Equipos", purpose: "clave_wifi" })}
+            >
+              {t("Pedir la contraseña", "Ask for the password")}
+            </a>
           </div>
 
           {/* VIDEOS */}
           <div className="gg-stack" style={{ marginTop: 14 }}>
             {videos.map((v) => (
-              <VideoCard key={v.videoId} title={v.title} note={v.note} videoId={v.videoId} />
+              <VideoCard key={v.videoId} title={v.title} note={v.note} videoId={v.videoId} name={v.name} lang={lang} />
             ))}
           </div>
 
@@ -134,7 +133,14 @@ export default function HomeSystems({ lang }) {
               </li>
             </ul>
 
-            <a className="gg-btn" href={waLink} target="_blank" rel="noreferrer" style={{ marginTop: 12 }}>
+            <a
+              className="gg-btn"
+              href={waLink}
+              target="_blank"
+              rel="noreferrer"
+              style={{ marginTop: 12 }}
+              onClick={() => track("contact_whatsapp", { source: "Casa & Equipos", purpose: "soporte" })}
+            >
               {t("Contáctame por WhatsApp", "Contact me on WhatsApp")}
             </a>
           </div>
@@ -151,12 +157,17 @@ export default function HomeSystems({ lang }) {
  )}
             </p>
 
-            <a className="gg-btn gg-btnSecondary" href={waLink} target="_blank" rel="noreferrer" style={{ margin: 0 }}>
+            <a
+              className="gg-btn gg-btnSecondary"
+              href={waLink}
+              target="_blank"
+              rel="noreferrer"
+              style={{ margin: 0 }}
+              onClick={() => track("contact_whatsapp", { source: "Casa & Equipos", purpose: "limpieza_extra" })}
+            >
               {t("Solicitar limpieza", "Request cleaning")}
             </a>
           </div>
-        </div>
-      </div>
-    </div>
+    </Shell>
   );
 }

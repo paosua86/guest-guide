@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Guest Guide</title>
+    <!--
+      GitHub Pages no sabe nada de las rutas de React: si un huésped abre
+      /guest-guide/arrival directamente (link compartido, favorito, QR),
+      Pages busca un archivo que no existe y sirve este 404.
+
+      Aquí guardamos la ruta pedida en la query (/guest-guide/?/arrival) y
+      mandamos al index, que la restaura antes de que arranque React.
+      Técnica de rafgraph/spa-github-pages (MIT).
+    -->
+    <script>
+      // 1 = el sitio vive en /guest-guide/, no en la raíz del dominio.
+      var pathSegmentsToKeep = 1;
+
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body></body>
+</html>

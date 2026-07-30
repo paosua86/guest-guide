@@ -1,6 +1,6 @@
 // src/pages/Inventory.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import Shell from "../components/Shell";
 
 const CLOUD_NAME = "dk9fhte0q";
 
@@ -16,7 +16,7 @@ function cloudinaryUrl(publicId) {
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${publicId}.jpg`;
 }
 
-export default function Inventory({ lang }) {
+export default function Inventory({ lang, setLang }) {
   const t = (es, en) => (lang === "es" ? es : en);
 
   // ✅ De-duplicated IDs from your message (kept 1 copy each)
@@ -66,15 +66,7 @@ export default function Inventory({ lang }) {
   ];
 
   return (
-    <div className="gg-wrap">
-      <div className="gg-card">
-        <div className="gg-inner">
-          <div className="gg-pageTop">
-            <Link className="gg-back" to="/">
-              {t("← Volver", "← Back")}
-            </Link>
-            <div className="gg-badge">{t("INVENTARIO VISUAL", "VISUAL INVENTORY")}</div>
-          </div>
+    <Shell lang={lang} setLang={setLang} badgeEs="INVENTARIO VISUAL" badgeEn="VISUAL INVENTORY">
 
           <h1 className="gg-h1">{t("Inventario visual", "Visual inventory")}</h1>
           <p className="gg-p">
@@ -119,8 +111,6 @@ export default function Inventory({ lang }) {
               "If anything is missing or damaged, let us know via Airbnb or WhatsApp."
             )}
           </div>
-        </div>
-      </div>
-    </div>
+    </Shell>
   );
 }

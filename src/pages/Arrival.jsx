@@ -1,5 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import VideoCard from "../components/VideoCard";
+import Shell from "../components/Shell";
 
 function ytId(url) {
   try {
@@ -22,65 +23,39 @@ function ytId(url) {
   return "";
 }
 
-function VideoCard({ title, note, url }) {
-  const id = ytId(url);
-  const src = id ? `https://www.youtube.com/embed/${id}` : "";
-
-  return (
-    <div className="gg-videoCard">
-      <div className="gg-video">
-        {src ? (
-          <iframe
-            src={src}
-            title={title}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          />
-        ) : (
-          <div style={{ padding: 14, color: "rgba(255,255,255,.75)" }}>
-            Video link inválido
-          </div>
-        )}
-      </div>
-
-      <div className="gg-videoMeta">
-        <div>
-          <div className="gg-videoTitle">{title}</div>
-          {note ? <div className="gg-videoNote">{note}</div> : null}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function Arrival({ lang }) {
+export default function Arrival({ lang, setLang }) {
   const t = (es, en) => (lang === "es" ? es : en);
 
+  // `name` es el nombre fijo en español que se manda a analytics, para que el
+  // reporte no se parta en dos según el idioma que eligió el huésped.
   const videos = [
     {
+      name: "Registro inicial peatonal",
       title: t("Registro inicial peatonal", "Initial pedestrian registration"),
       note: t("Como llegar desde Paseo San Francisco. Si no vienes con carro aquí está como ingresar.", "How to get there from Paseo San Francisco. If you're not coming by car, here's how to get in."),
       url: "https://youtu.be/vxN20NGMjZw",
     },
     {
+      name: "Ingreso con carro",
       title: t("Ingreso con carro", "Vehicle entry"),
       note: t("Si vienes con auto debes ingresar directamente con este y el guardia te registrará en la entrada", "If you are coming by car, you must drive directly in and the guard will register you at the entrance."),
       url: "https://www.youtube.com/shorts/gV-C4ea-7bI",
     },
 
     {
+      name: "Abrir la puerta del departamento (chapa)",
       title: t("Abrir la puerta del departamento (chapa)", "Unlock the apartment door (smart lock)"),
       note: t("Cómo abrir correctamente y evitar bloqueos. Recuerda poner un '#' al final del codigo", "How to unlock properly and avoid lockouts. Remember to put a '#' at the end of the code"),
       url: "https://youtube.com/shorts/aycFgHBuhpc",
     },
     {
+      name: "Poner seguro al salir",
       title: t("Poner seguro al salir", "Lock it when you leave"),
       note: t("Importante: así aseguras la puerta al salir.", "Important: this is how you secure the door when leaving."),
       url: "https://youtube.com/shorts/b4YjfuSVsHA",
     },
     {
+      name: "Ingreso y salida peatonal con tag",
       title: t("Ingreso y salida peatonal con tag", "Pedestrian entry and exit with tag"),
       note: t("La entrada y salida peatonal diaria con el TAG que se encuentra dentro del departamento", "Daily pedestrian entry and exit with the TAG located within the department"),
       url: "https://youtube.com/shorts/L8cMv7Nzp3w",
@@ -88,15 +63,7 @@ export default function Arrival({ lang }) {
   ];
 
   return (
-    <div className="gg-wrap">
-      <div className="gg-card">
-        <div className="gg-inner">
-          <div className="gg-pageTop">
-            <Link className="gg-back" to="/">
-              {t("← Volver", "← Back")}
-            </Link>
-            <div className="gg-badge">{t("LLEGADA & ACCESO", "ARRIVAL & ACCESS")}</div>
-          </div>
+    <Shell lang={lang} setLang={setLang} badgeEs="LLEGADA & ACCESO" badgeEn="ARRIVAL & ACCESS">
 
           <h1 className="gg-h1">{t("Llegada & Acceso", "Arrival & Access")}</h1>
           <p className="gg-p">
@@ -108,7 +75,14 @@ export default function Arrival({ lang }) {
 
           <div className="gg-stack">
             {videos.map((v, idx) => (
-              <VideoCard key={`${v.url}-${idx}`} title={v.title} note={v.note} url={v.url} />
+              <VideoCard
+                key={`${v.url}-${idx}`}
+                title={v.title}
+                note={v.note}
+                videoId={ytId(v.url)}
+                name={v.name}
+                lang={lang}
+              />
             ))}
           </div>
 
@@ -128,9 +102,6 @@ export default function Arrival({ lang }) {
               <li>{t("Guarda esta guía en favoritos para abrirla rápido durante el ingreso.", "Bookmark this guide so you can open it quickly during check-in.")}</li>
             </ul>
           </div>
-
-        </div>
-      </div>
-    </div>
+    </Shell>
   );
 }

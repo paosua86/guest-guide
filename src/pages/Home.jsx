@@ -1,114 +1,115 @@
 import React from "react";
-import bgQuito from "../assets/quito.png";
-
 import { Link } from "react-router-dom";
+
+import { track } from "../lib/analytics";
+import { NAV, whatsappHref, WA_SOPORTE } from "../lib/nav";
+import Shell from "../components/Shell";
 
 export default function Home({ lang, setLang }) {
   const t = (es, en) => (lang === "es" ? es : en);
 
-  const buttons = [
+  // Atajos a lo que más se pregunta por WhatsApp aunque ya esté en la guía:
+  // entrar al edificio y reservar amenidades.
+  const atajos = [
     {
       to: "/arrival",
-      es: "Llegada & Acceso",
-      en: "Arrival & Access",
-      subEs: "Entrada, tags, parqueo, chapa",
-      subEn: "Entry, tags, parking, lock",
+      name: "Cómo entrar",
+      es: "Cómo entrar",
+      en: "How to get in",
+      subEs: "Guardia, tag y chapa · videos",
+      subEn: "Guard, tag & lock · videos",
     },
-      {
+    {
       to: "/amenities",
-      es: "Amenidades",
-      en: "Amenities",
-      subEs: "Piscina, reservas, horarios",
-      subEn: "Pool, booking, hours",
+      name: "Reservar amenidades",
+      es: "Reservar amenidades",
+      en: "Book amenities",
+      subEs: "Piscina, horarios y cómo reservar",
+      subEn: "Pool, hours & how to book",
     },
-    {
-      to: "/home-systems",
-      es: "Casa & Equipos",
-      en: "Home & Appliances",
-      subEs: "Cocina, agua, WiFi, TV, ducha",
-      subEn: "Kitchen, water, WiFi, TV, shower",
-    },
-   {
-      to: "/explore",
-      es: "Conoce Cumbayá & Quito",
-      en: "Explore Cumbayá & Quito",
-      subEs: "Dónde comer, malls, planes",
-      subEn: "Food, malls, things to do",
-    },
-
-    {
-      to: "/rules",
-      es: "Normas & Check-out",
-      en: "Rules & Check-out",
-      subEs: "Convivencia, basura, salida",
-      subEn: "House rules, trash, check-out",
-    },
-    {
-      to: "/inventory",
-      es: "Inventario visual",
-      en: "Visual inventory",
-      subEs: "Qué hay en el depa",
-      subEn: "What’s included",
-    },
-
   ];
 
-  const whatsappHref = `https://wa.me/593998536569?text=${encodeURIComponent(
-    "Hola, me encuentro en el departamento 2048 en Aquarela, y necesito tu ayuda con : "
-  )}`;
-
   return (
-    <div className="gg-wrap">
-      <div className="gg-card">
-        <div
-  className="gg-inner gg-innerBg"
-  style={{ "--cardBg": `url(${bgQuito})` }}
->
+    <Shell lang={lang} setLang={setLang} home>
+      {/* Solo en móvil: en escritorio esto vive en el riel. */}
+      <div className="gg-top">
+        <div className="gg-badge">AQUARELA · CUMBAYÁ · TORRE 29</div>
 
-          <div className="gg-top">
-            <div>
-              <div className="gg-badge">AQUARELA · CUMBAYÁ · TORRE 29</div>
-            </div>
+        <button
+          className="gg-lang"
+          type="button"
+          aria-label="Toggle language"
+          onClick={() => {
+            const next = lang === "es" ? "en" : "es";
+            track("switch_language", { from: lang, to: next });
+            setLang(next);
+          }}
+        >
+          {lang === "es" ? "EN" : "ES"}
+        </button>
+      </div>
 
-            <button
-              className="gg-lang"
-              onClick={() => setLang(lang === "es" ? "en" : "es")}
-              type="button"
-              aria-label="Toggle language"
-            >
-              {lang === "es" ? "EN" : "ES"}
-            </button>
-          </div>
+      <h1 className="gg-title">{t("Guía del Huésped", "Guest Guide")}</h1>
+      <p className="gg-sub">
+        {t(
+          "Todo lo esencial de tu estadía, en un solo lugar.",
+          "Everything you need for your stay, in one place."
+        )}
+      </p>
 
-          <div className="gg-title">{t("Guía del Huésped", "Guest Guide")}</div>
-          <p className="gg-sub">
-            {t(
-              "Cinco botones. Todo lo esencial. Cero fricción.",
-              "Five buttons. Everything essential. Zero friction."
-            )}
-          </p>
+      <h2 className="gg-h2">{t("Empieza aquí", "Start here")}</h2>
 
-          {buttons.map((b) => (
-            <Link key={b.to} to={b.to} className="gg-btn">
-              {t(b.es, b.en)}
-              <small>{t(b.subEs, b.subEn)}</small>
-            </Link>
-          ))}
+      <div className="gg-quick">
+        {atajos.map((a) => (
+          <Link
+            key={a.to}
+            to={a.to}
+            className="gg-quickBtn"
+            onClick={() => track("select_quick_action", { action: a.name, section_path: a.to })}
+          >
+            <span className="gg-quickText">
+              <span className="gg-quickTitle">{t(a.es, a.en)}</span>
+              <span className="gg-quickSub">{t(a.subEs, a.subEn)}</span>
+            </span>
+            <span className="gg-quickGo" aria-hidden="true">
+              →
+            </span>
+          </Link>
+        ))}
+      </div>
 
-          <div className="gg-foot" style={{ display: "grid", gap: 10 }}>
-            <div>
-              {t(
-                "Soporte por Airbnb (6:00–22:00).",
-                "Support via Airbnb (6:00–22:00)."
-              )}
-            </div>
+      {/* Lista completa y soporte: en escritorio los reemplaza el riel. */}
+      <div className="gg-homeList">
+        <h2 className="gg-h2">{t("Todo lo demás", "Everything else")}</h2>
 
-            <a className="gg-btn" style={{ margin: 0 }} href={whatsappHref} target="_blank" rel="noreferrer">
-              {t("Contáctame por WhatsApp", "Contact me on WhatsApp")}
-            </a>
-          </div>
+        {NAV.map((b) => (
+          <Link
+            key={b.to}
+            to={b.to}
+            className="gg-btn"
+            // b.es (y no t(...)) para que el reporte no se parta por idioma.
+            onClick={() => track("select_section", { section: b.es, section_path: b.to })}
+          >
+            {t(b.es, b.en)}
+            <small>{t(b.subEs, b.subEn)}</small>
+          </Link>
+        ))}
+
+        <div className="gg-foot" style={{ display: "grid", gap: 10 }}>
+          <div>{t("Soporte por Airbnb (6:00–22:00).", "Support via Airbnb (6:00–22:00).")}</div>
+
+          <a
+            className="gg-btn"
+            style={{ margin: 0 }}
+            href={whatsappHref(WA_SOPORTE)}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => track("contact_whatsapp", { source: "Home", purpose: "soporte" })}
+          >
+            {t("Contáctame por WhatsApp", "Contact me on WhatsApp")}
+          </a>
         </div>
       </div>
-    </div>
+    </Shell>
   );
 }
