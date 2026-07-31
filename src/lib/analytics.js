@@ -38,7 +38,11 @@ export function usePageViews() {
   const prevHref = useRef(document.referrer || undefined);
 
   useEffect(() => {
-    const name = ROUTE_NAMES[pathname] || "Ruta desconocida";
+    // Cada sección se sirve como carpeta (/arrival/index.html), así que la
+    // ruta puede llegar con barra final. Sin normalizar, el reporte diría
+    // "Ruta desconocida".
+    const limpia = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+    const name = ROUTE_NAMES[limpia] || "Ruta desconocida";
     document.title = `${name} · Guest Guide`;
 
     track("page_view", {
