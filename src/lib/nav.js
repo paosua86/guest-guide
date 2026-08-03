@@ -7,8 +7,8 @@ export const NAV = [
     to: "/arrival",
     es: "Llegada & Acceso",
     en: "Arrival & Access",
-    subEs: "Entrada, tags, parqueo, chapa",
-    subEn: "Entry, tags, parking, lock",
+    subEs: "Entrada, tag, parqueo, chapa",
+    subEn: "Entry, tag, parking, lock",
   },
   {
     to: "/amenities",

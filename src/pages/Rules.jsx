@@ -76,16 +76,12 @@ export default function Rules({ lang, setLang }) {
               )}
               <br />
               <br />
-              {t("Se entregan 2 tags:", "You will receive 2 access tags:")}
-              <br />
-              {t("Tag 1: acceso + amenidades", "Tag 1: access + amenities")}
-              <br />
-              {t("Tag 2: solo amenidades", "Tag 2: amenities only")}
+              {t("Se entrega 1 tag, que sirve para el acceso y las amenidades.", "You will receive 1 access tag, valid for both entry and amenities.")}
               <br />
               <br />
               {t(
-                "Pérdida / no devolución: USD 20 por cada tag. Reporta cualquier pérdida de inmediato (no se reponen rápido).",
-                "Lost / not returned: USD 20 per tag. Report any loss immediately (replacements are not quick)."
+                "Pérdida / no devolución: USD 20. Reporta cualquier pérdida de inmediato (no se repone rápido).",
+                "Lost / not returned: USD 20. Report any loss immediately (replacements are not quick)."
               )}
             </p>
           </Accordion>
@@ -278,7 +274,7 @@ export default function Rules({ lang, setLang }) {
             <ol className="gg-list" style={{ paddingLeft: 18, marginTop: 8 }}>
               <li>{t("Apaga todas las luces (incluye baño, cocina y lámparas) y apaga el extractor.", "Turn off all lights (bathroom, kitchen, lamps) and turn off the exhaust hood.")}</li>
               <li>{t("Cierra todas las llaves (cocina + baño) y deja la ducha ordenada.", "Close all faucets (kitchen + bathroom) and leave the shower area tidy.")}</li>
-              <li>{t("Devuelve ambos tags en el lugar indicado dentro del departamento.", "Return both access tags to the designated spot inside the apartment.")}</li>
+              <li>{t("Devuelve el tag en el lugar indicado dentro del departamento.", "Return the access tag to the designated spot inside the apartment.")}</li>
               <li>{t("Asegura/cierra la puerta inteligente al salir.", "Lock the smart door when you leave.")}</li>
               <li>{t('Envíanos un mensaje por Airbnb: “Checked out”.', 'Send us a message on Airbnb: “Checked out”.')}</li>
             </ol>
