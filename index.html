@@ -10,6 +10,53 @@
     <meta name="robots" content="noindex, nofollow" />
 
     <!--
+      Exclusión de tráfico interno (Paola, David, limpieza, pruebas).
+      Con ~5 grupos al mes, una sola visita nuestra mueve el dato un 20%, así
+      que el filtro por IP de GA4 no basta: la IP de casa cambia y el móvil
+      sale por la red de datos.
+
+      Uso: abrir una vez ?ga=off en CADA dispositivo/navegador propio.
+      Para volver a medir en ese dispositivo: ?ga=on
+      Ej: https://paosua86.github.io/guest-guide/?ga=off
+
+      Va ANTES de gtag.js a propósito: 'ga-disable-<ID>' es la bandera oficial
+      de Google y solo surte efecto si existe antes de que el tag arranque.
+    -->
+    <script>
+      (function () {
+        var GA_ID = 'G-D1XY1Y6Y8Y';
+        var OFF = 'gg_no_analytics';
+        var FORCE = 'gg_analytics_force';
+        var esLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+        try {
+          var q = new URLSearchParams(window.location.search).get('ga');
+          if (q === 'off') {
+            localStorage.setItem(OFF, '1');
+            localStorage.removeItem(FORCE);
+            alert('Analytics DESACTIVADO en este dispositivo. Tus visitas ya no se cuentan.');
+          } else if (q === 'on') {
+            localStorage.removeItem(OFF);
+            localStorage.setItem(FORCE, '1');
+            alert('Analytics ACTIVADO en este dispositivo.');
+          }
+          var forzado = localStorage.getItem(FORCE) === '1';
+          var apagado = localStorage.getItem(OFF) === '1' || (esLocal && !forzado);
+          if (apagado) {
+            // Bandera nativa de gtag.js: bloquea cualquier envio a esa propiedad.
+            window['ga-disable-' + GA_ID] = true;
+            window.__ggAnalyticsOff = true;
+          }
+        } catch (e) {
+          // localStorage bloqueado (incognito): al menos no medimos en local.
+          if (esLocal) {
+            window['ga-disable-' + GA_ID] = true;
+            window.__ggAnalyticsOff = true;
+          }
+        }
+      })();
+    </script>
+
+    <!--
       Restaura la ruta que guardó public/404.html (/guest-guide/?/arrival ->
       /guest-guide/arrival). Va primero que todo para que React y Analytics ya
       vean la URL correcta.

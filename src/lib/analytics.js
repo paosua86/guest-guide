@@ -20,6 +20,8 @@ export const ROUTE_NAMES = {
 };
 
 export function track(name, params = {}) {
+  // Trafico interno (Paola/David/pruebas): la bandera la pone index.html.
+  if (window.__ggAnalyticsOff) return;
   if (typeof window.gtag !== "function") return;
   window.gtag("event", name, params);
 }
@@ -27,6 +29,7 @@ export function track(name, params = {}) {
 // Queda pegado a todos los eventos siguientes: sirve para comparar huéspedes
 // en español vs inglés.
 export function setGuestLang(lang) {
+  if (window.__ggAnalyticsOff) return;
   if (typeof window.gtag !== "function") return;
   window.gtag("set", "user_properties", { guest_lang: lang });
 }
