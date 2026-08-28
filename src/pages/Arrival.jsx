@@ -1,6 +1,7 @@
 import React from "react";
 import VideoCard from "../components/VideoCard";
 import Shell from "../components/Shell";
+import { track } from "../lib/analytics";
 
 function ytId(url) {
   try {
@@ -22,6 +23,22 @@ function ytId(url) {
   } catch (e) {}
   return "";
 }
+
+const PAGE = "Llegada & Acceso";
+
+// Las dos entradas del complejo, separadas ~40 m. Un solo punto mandaba a los
+// que llegan en carro a la puerta peatonal, que es de donde salen las esperas
+// en el acceso.
+//
+// Se guardan las coordenadas y no los enlaces cortos de Google: los que salen
+// al compartir desde Street View son panoramicas y no abren navegacion.
+const ENTRADAS = {
+  peatonal:    { coords: "-0.198477,-78.441031", legible: "-0.198477, -78.441031" },
+  parqueadero: { coords: "-0.198819,-78.441129", legible: "-0.198819, -78.441129" },
+};
+
+const navegar = (coords) =>
+  `https://www.google.com/maps/dir/?api=1&destination=${coords}`;
 
 export default function Arrival({ lang, setLang }) {
   const t = (es, en) => (lang === "es" ? es : en);
@@ -72,6 +89,49 @@ export default function Arrival({ lang, setLang }) {
               "Follow this order. If you're coming by taxi or on foot, register with the guard as shown in the first video. If you're coming by car, enter through the parking lot with your car and register there as shown in the second video."
             )}
           </p>
+
+          <div className="gg-section">
+            <div className="gg-sectionTitle">{t("Cómo llegar", "Getting here")}</div>
+            <p className="gg-p">
+              {t(
+                "El complejo tiene dos entradas y están separadas. Abre la tuya y enséñasela al taxista antes de arrancar.",
+                "The complex has two separate entrances. Open yours and show it to your driver before setting off."
+              )}
+            </p>
+
+            <a
+              className="gg-btn"
+              href={navegar(ENTRADAS.peatonal.coords)}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => track("open_map", { place: "Entrada peatonal", section: PAGE })}
+            >
+              {t("Llego en taxi o a pie", "Arriving by taxi or on foot")}
+              <small>{t("Entrada peatonal, donde está el guardia", "Pedestrian entrance, where the guard is")}</small>
+            </a>
+
+            <a
+              className="gg-btn"
+              href={navegar(ENTRADAS.parqueadero.coords)}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => track("open_map", { place: "Entrada parqueadero", section: PAGE })}
+            >
+              {t("Llego en carro", "Arriving by car")}
+              <small>{t("Entrada del parqueadero", "Parking entrance")}</small>
+            </a>
+
+            <ul className="gg-list">
+              <li>
+                {t("A pie o en taxi: ", "On foot or by taxi: ")}
+                <strong>{ENTRADAS.peatonal.legible}</strong>
+              </li>
+              <li>
+                {t("En carro: ", "By car: ")}
+                <strong>{ENTRADAS.parqueadero.legible}</strong>
+              </li>
+            </ul>
+          </div>
 
           <div className="gg-stack">
             {videos.map((v, idx) => (
